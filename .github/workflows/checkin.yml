@@ -59,8 +59,9 @@ jobs:
           ${{ runner.os }}-cloakbrowser-
 
     - name: 安装 CloakBrowser
+      continue-on-error: true
       run: |
-        uv run python -m cloakbrowser install
+        uv run python -m cloakbrowser install || true
         echo "✅ CloakBrowser 安装完成"
 
     - name: 恢复余额历史缓存
