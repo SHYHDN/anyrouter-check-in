@@ -96,8 +96,6 @@ jobs:
         CHECKIN_HUMANIZE: true
         CHECKIN_WAIT_TIMEOUT_MS: 120000
         ANYROUTER_ACCOUNTS: ${{ secrets.ANYROUTER_ACCOUNTS }}
-        PROVIDERS: '{"myserver":{"domain":"http://8.137.164.18:16
-          +721","bypass_method":null,"sign_in_path":"/api/user/checkin"}}'
         DINGDING_WEBHOOK: ${{ secrets.DINGDING_WEBHOOK }}
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
@@ -116,6 +114,7 @@ jobs:
         BARK_KEY: ${{ secrets.BARK_KEY }}
         BARK_SERVER: ${{ secrets.BARK_SERVER }}
       run: |
+       export PROVIDERS='{"myserver":{"domain":"http://8.137.164.18:16721","bypass_method":null,"sign_in_path":"/api/user/checkin"}}'
         xvfb-run -a --server-args="-screen 0 1920x1080x24" uv run checkin.py
 
     - name: 上传调试截图
