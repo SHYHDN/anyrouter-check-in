@@ -155,6 +155,7 @@ class AccountConfig:
 	name: str | None = None
 	email: str | None = None
 	password: str | None = None
+	access_token: str | None = None
 
 	@classmethod
 	def from_dict(cls, data: dict, index: int) -> 'AccountConfig':
@@ -169,6 +170,7 @@ class AccountConfig:
 			name=name if name else None,
 			email=data.get('email'),
 			password=data.get('password'),
+			access_token=data.get('access_token'),
 		)
 
 	def has_login_credentials(self) -> bool:
@@ -205,19 +207,19 @@ def load_accounts_config() -> list[AccountConfig] | None:
 				print(f'ERROR: Account {i + 1} configuration format is incorrect')
 				return None
 
-			if 'api_user' not in account_dict:
-				has_login = account_dict.get('email') and account_dict.get('password')
+			has_cookies = 'cookies' in account_dict and account_dict['cookies']
+			has_login = account_dict.get('email') and account_dict.get('password')
+			has_token = bool(account_dict.get('access_token'))
+
+			if not has_token and 'api_user' not in account_dict:
 				if not has_login:
 					print(
-						f'ERROR: Account {i + 1} missing required field (api_user) - only email+password login can omit it'
+						f'ERROR: Account {i + 1} missing required field (api_user) - only email+password or access_token login can omit it'
 					)
 					return None
 
-			has_cookies = 'cookies' in account_dict and account_dict['cookies']
-			has_login = account_dict.get('email') and account_dict.get('password')
-
-			if not has_cookies and not has_login:
-				print(f'ERROR: Account {i + 1} must have either cookies or email+password')
+			if not has_cookies and not has_login and not has_token:
+				print(f'ERROR: Account {i + 1} must have either cookies, email+password, or access_token')
 				return None
 
 			if 'name' in account_dict and not account_dict['name']:
