@@ -362,6 +362,18 @@ async def check_in_account(account: AccountConfig, account_index: int, app_confi
 
 	print(f'[INFO] {account_name}: Using provider "{account.provider}" ({provider_config.domain})')
 
+	# 个人访问令牌优先（新版 New-API 不再支持 session cookie 鉴权）
+	if account.access_token:
+		print(f'[AUTH] {account_name}: Using auth method -> access token')
+		return run_check_in_requests(
+			{},
+			account,
+			account_name,
+			provider_config,
+			api_user_override=None,
+			use_proxy=provider_config.use_proxy,
+		)
+
 	# 邮箱密码优先
 	all_cookies = None
 	resolved_api_user: str | None = None
@@ -444,9 +456,12 @@ def run_check_in_requests(
 				'Sec-Fetch-Site': 'same-origin',
 			}
 
-			api_user = api_user_override or account.api_user
-			if api_user:
-				headers[provider_config.api_user_key] = api_user
+			if account.access_token:
+				headers['Authorization'] = f'Bearer {account.access_token}'
+			else:
+				api_user = api_user_override or account.api_user
+				if api_user:
+					headers[provider_config.api_user_key] = api_user
 
 			user_info_url = f'{provider_config.domain}{provider_config.user_info_path}'
 			user_info_before = get_user_info(client, headers, user_info_url)
